@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import '../stylesheets/ResultsPage.css';
 import bgImage from '../assets/ba1b5feec77ec1fc9d27c36047d092f5787f5336.jpg';
 import { useQuiz } from '../context/QuizContext';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 const PRODUCTS_ENDPOINT = 'https://jeval.com.au/collections/hair-care/products.json?page=1';
 
@@ -112,36 +111,84 @@ const ResultsPage = () => {
           Retake the quiz
         </button>
         <div className="results-slider-section">
-          <h2 style={{color: '#fff'}}>Recommended for you</h2>
-          {loading ? (
-            <div style={{color: '#fff'}}>Loading products...</div>
-          ) : error ? (
-            <div style={{color: 'red'}}>{error}</div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <button onClick={handlePrev} disabled={sliderIndex === 0}>&lt;</button>
-              <div style={{ display: 'flex', overflow: 'hidden', width: 500 }}>
-                {filteredProducts.slice(sliderIndex, sliderIndex + 2).map((product: Product) => (
-                  <div key={product.id} className="results-card" style={{ minWidth: 240, margin: 8, background: '#fff', borderRadius: 8 }}>
-                    <img src={product.images?.[0]?.src} alt={product.title} style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: '8px 8px 0 0' }} draggable={false} />
-                    <div className="results-card-title" style={{ fontWeight: 'bold', margin: '8px 0' }}>{product.title}</div>
-                    <div className="results-card-price" style={{ color: '#333', marginBottom: 8 }}>
-                      ${product.variants?.[0]?.price}
-                    </div>
-                    <button
-                      className="wishlist-btn"
-                      onClick={() => toggleWishlist(product.id)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 24 }}
-                      aria-label={wishlist.includes(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+          <div className="results-content-wrapper">
+            <div className="results-text-card">
+              <h2 className="results-slider-title">Our products</h2>
+              <p className="results-slider-description">
+                Discover our carefully curated selection of premium hair care products designed to refresh, nourish, and revitalize your hair. From hydrating shampoos to strengthening treatments, each product is formulated with natural ingredients to give you healthy, vibrant hair that feels refreshed all day long.
+              </p>
+            </div>
+            <div className="results-slider-wrapper">
+              {loading ? (
+                <div className="results-loading">Loading products...</div>
+              ) : error ? (
+                <div className="results-error">{error}</div>
+              ) : (
+                <div className="results-slider-outer">
+                  <div className="results-slider-nav">
+                    <button 
+                      className="results-slider-arrow"
+                      onClick={handlePrev} 
+                      disabled={sliderIndex === 0}
+                      aria-label="Previous slide"
                     >
-                      {wishlist.includes(product.id) ? <FaHeart color="red" /> : <FaRegHeart color="#aaa" />}
+                      &lt;
+                    </button>
+                    <div className="results-slider-container">
+                      <div className="results-slider">
+                        {filteredProducts.slice(sliderIndex, sliderIndex + 2).map((product: Product) => (
+                          <div key={product.id} className="results-card custom-card-narrow">
+                            <img src={product.images?.[0]?.src} alt={product.title} className="results-card-img custom-card-img" draggable={false} />
+                            <div className="results-card-content">
+                              <div className="results-card-title">{product.title}</div>
+                              <div className="results-card-price">${product.variants?.[0]?.price}</div>
+                              <button
+                                className={`wishlist-btn${wishlist.includes(product.id) ? ' active' : ''}`}
+                                onClick={() => toggleWishlist(product.id)}
+                                aria-label={wishlist.includes(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                              >
+                                {wishlist.includes(product.id) ? (
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="red">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                  </svg>
+                                ) : (
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#aaa">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                  </svg>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <button 
+                      className="results-slider-arrow"
+                      onClick={handleNext} 
+                      disabled={sliderIndex + 2 >= filteredProducts.length}
+                      aria-label="Next slide"
+                    >
+                      &gt;
                     </button>
                   </div>
-                ))}
-              </div>
-              <button onClick={handleNext} disabled={sliderIndex + 2 >= filteredProducts.length}>&gt;</button>
+                  {/* Dots indicator */}
+                  <div className="results-slider-dots">
+                    {Array.from({ length: Math.ceil(filteredProducts.length / 2) }, (_, index) => (
+                      <svg
+                        key={index}
+                        width="10" height="10" viewBox="0 0 10 10"
+                        className={`results-slider-dot${sliderIndex === index * 2 ? ' active' : ''}`}
+                        onClick={() => setSliderIndex(index * 2)}
+                        aria-label={`Go to slide ${index + 1}`}
+                      >
+                        <circle cx="5" cy="5" r="4" />
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
