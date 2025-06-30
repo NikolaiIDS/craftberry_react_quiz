@@ -1,0 +1,163 @@
+/* ResultsPage.css */
+
+.results-bg {
+  min-height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background-image: var(--results-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.results-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.35);
+  z-index: 1;
+}
+
+.results-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+  padding-top: 3.5rem;
+}
+
+.results-title {
+  color: white;
+  font-size: 2.3rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  font-family: 'proxima-nova', sans-serif;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.results-desc {
+  color: white;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.results-retake-btn {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 0.75rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 2.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+.results-retake-btn:hover {
+  background: white;
+  color: #1C2635;
+}
+
+.results-slider-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.results-slider {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1100px;
+  justify-content: center;
+}
+
+.results-card {
+  background: #F6FBFF;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  min-width: 260px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.results-card-info {
+  background: #eaf6fb;
+  align-items: flex-start;
+  text-align: left;
+  min-width: 260px;
+  max-width: 320px;
+}
+
+.results-card-info h2 {
+  color: #1C2635;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+  font-family: 'proxima-nova', sans-serif;
+}
+
+.results-card-info p {
+  color: #1C2635;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.results-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.results-card-title {
+  color: #1C2635;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  font-family: 'proxima-nova', sans-serif;
+}
+
+.results-card-price {
+  color: #1C2635;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.7rem;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #bdbdbd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.wishlist-btn:hover, .wishlist-btn.active {
+  color: #ff6b81;
+} 
