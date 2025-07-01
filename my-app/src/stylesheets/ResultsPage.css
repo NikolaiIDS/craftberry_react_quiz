@@ -550,9 +550,7 @@
     touch-action: manipulation;
     flex-shrink: 0;
   }
-  .results-slider-dot circle {
-    /* No r: 7 here, handled by SVG */
-  }
+
 }
 
 @media (max-width: 500px) {
