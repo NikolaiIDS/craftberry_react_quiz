@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../stylesheets/ResultsPage.css';
 import bgImage from '../assets/ba1b5feec77ec1fc9d27c36047d092f5787f5336.jpg';
@@ -24,13 +24,27 @@ const ResultsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sliderIndex, setSliderIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const [wishlist, setWishlist] = useState<number[]>(() => {
     const stored = localStorage.getItem('wishlist');
     return stored ? JSON.parse(stored) : [];
   });
+  const touchStartX = useRef<number | null>(null);
 
   const isQuizCompleted = answers.every(answer => answer && answer.trim() !== '');
   
+  // Check if screen is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 700);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   useEffect(() => {
     if (!isQuizCompleted) {
       navigate('/question-1');
@@ -98,18 +112,21 @@ const ResultsPage = () => {
   };
 
   const handlePrev = () => {
-    const currentPage = Math.floor(sliderIndex / 2);
+    const productsPerPage = isMobile ? 1 : 2;
+    const currentPage = Math.floor(sliderIndex / productsPerPage);
     const prevPage = currentPage - 1;
     if (prevPage >= 0) {
-      setSliderIndex(prevPage * 2);
+      setSliderIndex(prevPage * productsPerPage);
     }
   };
+
   const handleNext = () => {
-    const totalPages = Math.ceil(filteredProducts.length / 2);
-    const currentPage = Math.floor(sliderIndex / 2);
+    const productsPerPage = isMobile ? 1 : 2;
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+    const currentPage = Math.floor(sliderIndex / productsPerPage);
     const nextPage = currentPage + 1;
     if (nextPage < totalPages) {
-      setSliderIndex(nextPage * 2);
+      setSliderIndex(nextPage * productsPerPage);
     }
   };
 
@@ -118,6 +135,24 @@ const ResultsPage = () => {
       prev.includes(id) ? prev.filter((wid) => wid !== id) : [...prev, id]
     );
   };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchEndX - touchStartX.current;
+    if (Math.abs(diff) > 50) { // threshold for swipe
+      if (diff < 0) handleNext();
+      else handlePrev();
+    }
+    touchStartX.current = null;
+  };
+
+  const productsPerPage = isMobile ? 1 : 2;
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   return (
     <div
@@ -151,15 +186,21 @@ const ResultsPage = () => {
             <button 
               className="results-slider-arrow"
               onClick={handlePrev} 
-              disabled={Math.floor(sliderIndex / 2) === 0}
+              disabled={Math.floor(sliderIndex / productsPerPage) === 0}
               aria-label="Previous slide"
             >
               &lt;
             </button>
-            <div className="results-slider-wrapper">
-              <div className="results-slider-container">
+            <div 
+              className="results-slider-wrapper"
+            >
+              <div 
+                className="results-slider-container"
+                onTouchStart={isMobile ? handleTouchStart : undefined}
+                onTouchEnd={isMobile ? handleTouchEnd : undefined}
+              >
                 <div className="results-slider">
-                  {filteredProducts.slice(sliderIndex, sliderIndex + 2).map((product: Product) => (
+                  {filteredProducts.slice(sliderIndex, sliderIndex + productsPerPage).map((product: Product) => (
                     <div key={product.id} className="custom-card-narrow">
                       <div className="custom-card-image-container">
                         <img src={product.images?.[0]?.src} alt={product.title} className="results-card-img custom-card-img" draggable={false} />
@@ -187,16 +228,17 @@ const ResultsPage = () => {
                   ))}
                 </div>
                 <div className="results-slider-dots">
-                  {Array.from({ length: Math.ceil(filteredProducts.length / 2) }, (_, index) => (
-                    <svg
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <span
                       key={index}
-                      width="10" height="10" viewBox="0 0 10 10"
-                      className={`results-slider-dot${sliderIndex === index * 2 ? ' active' : ''}`}
-                      onClick={() => setSliderIndex(index * 2)}
+                      className={`results-slider-dot${sliderIndex === index * productsPerPage ? ' active' : ''}`}
+                      onClick={() => setSliderIndex(index * productsPerPage)}
                       aria-label={`Go to slide ${index + 1}`}
                     >
-                      <circle cx="5" cy="5" r="4" />
-                    </svg>
+                      <svg viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="7" />
+                      </svg>
+                    </span>
                   ))}
                 </div>
               </div>
@@ -204,7 +246,7 @@ const ResultsPage = () => {
             <button 
               className="results-slider-arrow"
               onClick={handleNext} 
-              disabled={Math.floor(sliderIndex / 2) + 1 >= Math.ceil(filteredProducts.length / 2)}
+              disabled={Math.floor(sliderIndex / productsPerPage) + 1 >= totalPages}
               aria-label="Next slide"
             >
               &gt;
