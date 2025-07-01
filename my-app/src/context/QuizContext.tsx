@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { questions as importedQuestions } from '../data/questions';
 
 // Define the Question type locally
@@ -31,8 +31,28 @@ export const useQuiz = () => {
 export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [questions] = useState<Question[]>(importedQuestions);
   const numQuestions = questions.length;
-  // Initialize answers as an array of empty strings, one per question
-  const [answers, setAnswers] = useState<QuizAnswers>(Array(numQuestions).fill(''));
+  
+  // Initialize answers from localStorage or as empty array
+  const [answers, setAnswers] = useState<QuizAnswers>(() => {
+    const stored = localStorage.getItem('quizAnswers');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        // Ensure the stored answers array has the correct length
+        if (Array.isArray(parsed) && parsed.length === numQuestions) {
+          return parsed;
+        }
+      } catch (error) {
+        console.error('Failed to parse stored quiz answers:', error);
+      }
+    }
+    return Array(numQuestions).fill('');
+  });
+
+  // Persist answers to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('quizAnswers', JSON.stringify(answers));
+  }, [answers]);
 
   const setAnswer = (questionIndex: number, answer: string) => {
     setAnswers((prev) => {
@@ -42,7 +62,11 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  const resetQuiz = () => setAnswers(Array(numQuestions).fill(''));
+  const resetQuiz = () => {
+    const emptyAnswers = Array(numQuestions).fill('');
+    setAnswers(emptyAnswers);
+    localStorage.removeItem('quizAnswers');
+  };
 
   const getQuestionData = (questionIndex: number) => {
     if (questionIndex < 0 || questionIndex >= numQuestions) return undefined;
